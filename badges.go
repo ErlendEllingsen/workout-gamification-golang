@@ -15,12 +15,19 @@ type SingleActivityRequirement struct {
 	activityTypeRequirement    Activity
 }
 
+type PlayerRequirement struct {
+	hasLevelRequirement bool
+	levelRequirement    int32
+}
+
 type Badge struct {
 	id                           uint32
 	name                         string
 	desc                         string
 	hasSingleActivityRequirement bool
 	singleActivityRequirement    SingleActivityRequirement
+	hasPlayerRequirement         bool
+	playerRequirement            PlayerRequirement
 }
 
 var Badges = []Badge{
@@ -52,9 +59,34 @@ var Badges = []Badge{
 		},
 	},
 	Badge{
-		id:   0x3,
-		name: "hello",
-		desc: "lorem ipsum",
+		id:                   0x3,
+		name:                 "Gettin' started",
+		desc:                 "Reached level 3",
+		hasPlayerRequirement: true,
+		playerRequirement: PlayerRequirement{
+			hasLevelRequirement: true,
+			levelRequirement:    3,
+		},
+	},
+	Badge{
+		id:                   0x4,
+		name:                 "Rising star",
+		desc:                 "Reached level 5",
+		hasPlayerRequirement: true,
+		playerRequirement: PlayerRequirement{
+			hasLevelRequirement: true,
+			levelRequirement:    5,
+		},
+	},
+	Badge{
+		id:                   0x5,
+		name:                 "RiSiNg bOomer",
+		desc:                 "Reached level 10",
+		hasPlayerRequirement: true,
+		playerRequirement: PlayerRequirement{
+			hasLevelRequirement: true,
+			levelRequirement:    10,
+		},
 	},
 }
 
@@ -115,5 +147,20 @@ func testBadgeRequirements(p Player, a ActivityEntry, b Badge) bool {
 		}
 	}
 
-	return activityTypeRequirement && distOk && tempOk
+	// combine activity reqs
+	actionRequirements := activityTypeRequirement && distOk && tempOk
+
+	// process player requirements
+	playerRequirements := true
+	if b.hasPlayerRequirement {
+		playerReq := b.playerRequirement
+		levelRequirement := false
+		if playerReq.hasLevelRequirement {
+			levelRequirement = p.level >= playerReq.levelRequirement
+		}
+
+		playerRequirements = levelRequirement
+	}
+
+	return actionRequirements && playerRequirements
 }

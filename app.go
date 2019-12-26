@@ -1,14 +1,17 @@
 package main
 
-import "os"
 import "fmt"
-
-// import "io/ioutil"
+import "io/ioutil"
 
 type Player struct {
-	level    int
+	level    int32
 	progress float32
 	badges   []Badge
+	stats    PlayerStats
+}
+
+type PlayerStats struct {
+	totalRunningKm float32
 }
 
 type Activity struct {
@@ -19,6 +22,7 @@ type Activity struct {
 
 type ActivitiesStruct struct {
 	skiing_xc Activity
+	running   Activity
 }
 
 type ActivityEntry struct {
@@ -31,7 +35,12 @@ var Activities = ActivitiesStruct{
 	skiing_xc: Activity{
 		id:     "skiing_xc",
 		name:   "Cross Country",
-		cardio: false,
+		cardio: true,
+	},
+	running: Activity{
+		id:     "running",
+		name:   "Running",
+		cardio: true,
 	},
 }
 
@@ -56,37 +65,49 @@ func (p Player) AddRank(newProg float32) Player {
 }
 
 func (p Player) AddActivity(a ActivityEntry) Player {
+	// append stats
+	p.stats.totalRunningKm += a.distance
+	// calculate progress for rank
 	progressFromActivity := a.distance * 1.2
 	return p.AddRank(progressFromActivity)
 }
 
 func main() {
 
-	// parseActivities()
-	// getActivitiesFromStrava(false)
+	localMode := true
+	var acts []StravaActivity
 
-	// jsonRaw, _ := ioutil.ReadFile("strava-data.json")
-	// zacts := parseActivities(jsonRaw)
+	if localMode {
+		jsonRaw, _ := ioutil.ReadFile("strava-data.json")
+		acts = parseActivities(jsonRaw)
+	} else {
+		acts = getActivitiesFromStrava(false)
+	}
 
-	acts := getActivitiesFromStrava(false)
-	os.Exit(0)
-	fmt.Println(acts)
+	// fmt.Println(acts)
 
 	var p = Player{
 		level:  1,
 		badges: []Badge{},
 	}
 
-	// fmt.Println(p)
-
-	act := ActivityEntry{
-		activity:    Activities.skiing_xc,
-		distance:    16.0,
-		outsiteTemp: -1.0,
+	// Add activities to player
+	for _, sa := range acts {
+		a := sa.ToActivityEntry()
+		p = p.AddActivity(a)
+		p = p.ProcessBadges(a)
 	}
 
-	p = p.AddActivity(act)
-	p = p.ProcessBadges(act)
+	// fmt.Println(p)
+
+	// act := ActivityEntry{
+	// 	activity:    Activities.skiing_xc,
+	// 	distance:    16.0,
+	// 	outsiteTemp: -1.0,
+	// }
+
+	// p = p.AddActivity(act)
+	// p = p.ProcessBadges(act)
 
 	// fmt.Println(p)
 

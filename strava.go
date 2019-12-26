@@ -1,15 +1,28 @@
 package main
 
 import "os"
+import "strings"
 import "net/http"
 import "io/ioutil"
 import "encoding/json"
 import "log"
 
 type StravaActivity struct {
-	ID       int64   `json:"id"`
-	Type     string  `json:"type"`
-	Distance float64 `json:"distance"`
+	ID          int64   `json:"id"`
+	Type        string  `json:"type"`
+	Distance    float32 `json:"distance"`
+	AverageTemp int32   `json:"average_temp"`
+}
+
+func (sa StravaActivity) ToActivityEntry() ActivityEntry {
+	if strings.ToLower(sa.Type) == "run" {
+		return ActivityEntry{
+			activity:    Activities.running,
+			distance:    sa.Distance / 1000, // in metres
+			outsiteTemp: float32(sa.AverageTemp),
+		}
+	}
+	return ActivityEntry{}
 }
 
 type StravaOauthResponse struct {
