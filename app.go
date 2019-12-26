@@ -2,11 +2,6 @@ package main
 
 import "fmt"
 
-type Badge struct {
-	name string
-	desc string
-}
-
 type Player struct {
 	level    int
 	progress float32
@@ -16,6 +11,17 @@ type Player struct {
 type Activity struct {
 	cardio   bool
 	distance float32
+}
+
+type ActivitiesStruct struct {
+	skiing_xc Activity
+}
+
+var Activities = ActivitiesStruct{
+	skiing_xc: Activity{
+		cardio:   false,
+		distance: 5.0,
+	},
 }
 
 func (p Player) AddRank(newProg float32) Player {
@@ -35,28 +41,29 @@ func (p Player) AddRank(newProg float32) Player {
 }
 
 func (p Player) AddActivity(a Activity) Player {
+
 	progressFromActivity := a.distance * 1.2
 	return p.AddRank(progressFromActivity)
 }
 
 func main() {
-	var x = Player{
+	var p = Player{
 		level: 1,
 		badges: []Badge{
 			Badge{
+				id:   0x2,
 				name: "Skier",
 				desc: "Went on a ski trip",
 			},
 		},
 	}
 
-	fmt.Println(x)
+	fmt.Println(p)
 
-	x = x.AddActivity(Activity{
-		cardio:   false,
-		distance: 50.0,
-	})
+	p = p.AddActivity(Activities.skiing_xc)
 
-	fmt.Println(x)
+	fmt.Println(p)
+
+	processBadges(Activities.skiing_xc, p)
 
 }
