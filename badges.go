@@ -166,7 +166,7 @@ func (p Player) ProcessBadges(a ActivityEntry) Player {
 	// Identify remaining badges
 	for _, v := range Badges {
 		var foundMatch = false
-		for _, vp := range p.badges {
+		for _, vp := range p.Badges {
 			if vp == v.id {
 				foundMatch = true
 				break
@@ -181,7 +181,7 @@ func (p Player) ProcessBadges(a ActivityEntry) Player {
 	for _, b := range remainingBadges {
 		gotBadge := testBadgeRequirements(p, a, b)
 		if gotBadge {
-			p.badges = append(p.badges, b.id)
+			p.Badges = append(p.Badges, b.id)
 			fmt.Println("Player was awarded badge", b.name, "[", b.desc, "]")
 		}
 	}
@@ -222,7 +222,7 @@ func testBadgeRequirements(p Player, a ActivityEntry, b Badge) bool {
 		playerReq := b.playerRequirement
 		levelRequirement := true
 		if playerReq.hasLevelRequirement {
-			levelRequirement = p.level >= playerReq.levelRequirement
+			levelRequirement = p.Level >= playerReq.levelRequirement
 		}
 
 		statsRequirement := true
@@ -230,7 +230,7 @@ func testBadgeRequirements(p Player, a ActivityEntry, b Badge) bool {
 			statsReq := playerReq.statsRequirement
 			distanceRanReq := true
 			if statsReq.hasDistanceRanRequirement {
-				distanceRanReq = p.stats.totalRunningKm >= statsReq.distanceRanRequirement
+				distanceRanReq = p.Stats.TotalRunningKm >= statsReq.distanceRanRequirement
 			}
 			statsRequirement = distanceRanReq
 		}

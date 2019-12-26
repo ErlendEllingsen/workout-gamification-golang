@@ -1,17 +1,20 @@
 package main
 
+import "encoding/json"
 import "fmt"
+
+// import "os"
 import "io/ioutil"
 
 type Player struct {
-	level    int32
-	progress float32
-	badges   []uint32
-	stats    PlayerStats
+	Level    int32
+	Progress float32
+	Badges   []uint32
+	Stats    PlayerStats
 }
 
 type PlayerStats struct {
-	totalRunningKm float32
+	TotalRunningKm float32
 }
 
 type Activity struct {
@@ -45,20 +48,20 @@ var Activities = ActivitiesStruct{
 }
 
 func (p Player) AddRank(newProg float32) Player {
-	targetProgress := float32(p.level) * 2.5
-	newProgress := p.progress + newProg
+	targetProgress := float32(p.Level) * 2.5
+	newProgress := p.Progress + newProg
 
 	if targetProgress <= newProgress {
-		p.level++
-		p.progress = 0
+		p.Level++
+		p.Progress = 0
 		surplusProgress := newProgress - targetProgress
-		fmt.Println("Player level up", p.level, "surplus progress", surplusProgress)
+		fmt.Println("Player level up", p.Level, "surplus progress", surplusProgress)
 		if surplusProgress > 0 {
 			return p.AddRank(surplusProgress)
 		}
 	} else {
-		p.progress = newProgress
-		fmt.Println("Player level", p.level, "current progress", p.progress)
+		p.Progress = newProgress
+		fmt.Println("Player level", p.Level, "current progress", p.Progress)
 	}
 
 	return p
@@ -66,7 +69,7 @@ func (p Player) AddRank(newProg float32) Player {
 
 func (p Player) AddActivity(a ActivityEntry) Player {
 	// append stats
-	p.stats.totalRunningKm += a.distance
+	p.Stats.TotalRunningKm += a.distance
 	// calculate progress for rank
 	progressFromActivity := a.distance * 1.2
 	return p.AddRank(progressFromActivity)
@@ -87,8 +90,8 @@ func main() {
 	// fmt.Println(acts)
 
 	var p = Player{
-		level:  1,
-		badges: []uint32{},
+		Level:  1,
+		Badges: []uint32{},
 	}
 
 	// Add activities to player
@@ -99,7 +102,15 @@ func main() {
 		p = p.ProcessBadges(a)
 	}
 
-	fmt.Println(p)
+	dat, err := json.Marshal(p)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	fmt.Println(string(dat))
+
+	// fmt.Println(p)
 
 	// fmt.Println(p)
 
