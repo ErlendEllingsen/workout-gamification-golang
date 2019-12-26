@@ -1,6 +1,9 @@
 package main
 
+import "os"
 import "fmt"
+
+// import "io/ioutil"
 
 type Player struct {
 	level    int
@@ -58,6 +61,17 @@ func (p Player) AddActivity(a ActivityEntry) Player {
 }
 
 func main() {
+
+	// parseActivities()
+	// getActivitiesFromStrava(false)
+
+	// jsonRaw, _ := ioutil.ReadFile("strava-data.json")
+	// zacts := parseActivities(jsonRaw)
+
+	acts := getActivitiesFromStrava(false)
+	os.Exit(0)
+	fmt.Println(acts)
+
 	var p = Player{
 		level:  1,
 		badges: []Badge{},
