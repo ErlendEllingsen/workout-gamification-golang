@@ -9,6 +9,8 @@ type Player struct {
 }
 
 type Activity struct {
+	id     string
+	name   string
 	cardio bool
 }
 
@@ -24,6 +26,8 @@ type ActivityEntry struct {
 
 var Activities = ActivitiesStruct{
 	skiing_xc: Activity{
+		id:     "skiing_xc",
+		name:   "Cross Country",
 		cardio: false,
 	},
 }
@@ -55,14 +59,8 @@ func (p Player) AddActivity(a ActivityEntry) Player {
 
 func main() {
 	var p = Player{
-		level: 1,
-		badges: []Badge{
-			Badge{
-				id:   0x2,
-				name: "Skier",
-				desc: "Went on a ski trip",
-			},
-		},
+		level:  1,
+		badges: []Badge{},
 	}
 
 	// fmt.Println(p)

@@ -88,7 +88,7 @@ func (p Player) ProcessBadges(a ActivityEntry) Player {
 		}
 	}
 
-	fmt.Println(remainingBadges)
+	// fmt.Println(remainingBadges)
 
 	return p
 }
@@ -99,14 +99,14 @@ func testBadgeRequirements(p Player, a ActivityEntry, b Badge) bool {
 
 	activityTypeRequirement := true
 	if req.hasActivityTypeRequirement {
-		activityTypeRequirement = a.activity == req.activityTypeRequirement
+		activityTypeRequirement = a.activity.id == req.activityTypeRequirement.id
 	}
 
 	// process distance
 	distOk := a.distance >= req.distance
 
 	// process temp
-	tempOk := false
+	tempOk := true
 	if req.hasTemperatureRequirement {
 		if req.temperature.greaterThan {
 			tempOk = a.outsiteTemp > req.temperature.temperature
