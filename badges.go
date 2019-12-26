@@ -15,9 +15,16 @@ type SingleActivityRequirement struct {
 	activityTypeRequirement    Activity
 }
 
+type StatsRequirement struct {
+	hasDistanceRanRequirement bool
+	distanceRanRequirement    float32
+}
+
 type PlayerRequirement struct {
 	hasLevelRequirement bool
 	levelRequirement    int32
+	hasStatsRequirement bool
+	statsRequirement    StatsRequirement
 }
 
 type Badge struct {
@@ -88,6 +95,65 @@ var Badges = []Badge{
 			levelRequirement:    10,
 		},
 	},
+	Badge{
+		id:                           0x6,
+		name:                         "Baby steps",
+		desc:                         "Ran 1km",
+		hasSingleActivityRequirement: true,
+		singleActivityRequirement: SingleActivityRequirement{
+			distance:                   1.0,
+			hasActivityTypeRequirement: true,
+			activityTypeRequirement:    Activities.running,
+		},
+	},
+	Badge{
+		id:                           0x7,
+		name:                         "Sweaty shoes",
+		desc:                         "Ran 5km - we're getting somewhere!",
+		hasSingleActivityRequirement: true,
+		singleActivityRequirement: SingleActivityRequirement{
+			distance:                   5.0,
+			hasActivityTypeRequirement: true,
+			activityTypeRequirement:    Activities.running,
+		},
+	},
+	Badge{
+		id:                           0x8,
+		name:                         "Rocket fueled sweaty shoes",
+		desc:                         "Ran 10km - thats insane man!",
+		hasSingleActivityRequirement: true,
+		singleActivityRequirement: SingleActivityRequirement{
+			distance:                   10.0,
+			hasActivityTypeRequirement: true,
+			activityTypeRequirement:    Activities.running,
+		},
+	},
+	Badge{
+		id:                   0x9,
+		name:                 "Around de earth",
+		desc:                 "Ran 30km total",
+		hasPlayerRequirement: true,
+		playerRequirement: PlayerRequirement{
+			hasStatsRequirement: true,
+			statsRequirement: StatsRequirement{
+				hasDistanceRanRequirement: true,
+				distanceRanRequirement:    30.0,
+			},
+		},
+	},
+	Badge{
+		id:                   0x10,
+		name:                 "Around de moon",
+		desc:                 "Ran 50km total",
+		hasPlayerRequirement: true,
+		playerRequirement: PlayerRequirement{
+			hasStatsRequirement: true,
+			statsRequirement: StatsRequirement{
+				hasDistanceRanRequirement: true,
+				distanceRanRequirement:    50.0,
+			},
+		},
+	},
 }
 
 func (p Player) ProcessBadges(a ActivityEntry) Player {
@@ -101,7 +167,7 @@ func (p Player) ProcessBadges(a ActivityEntry) Player {
 	for _, v := range Badges {
 		var foundMatch = false
 		for _, vp := range p.badges {
-			if vp.id == v.id {
+			if vp == v.id {
 				foundMatch = true
 				break
 			}
@@ -115,7 +181,7 @@ func (p Player) ProcessBadges(a ActivityEntry) Player {
 	for _, b := range remainingBadges {
 		gotBadge := testBadgeRequirements(p, a, b)
 		if gotBadge {
-			p.badges = append(p.badges, b)
+			p.badges = append(p.badges, b.id)
 			fmt.Println("Player was awarded badge", b.name, "[", b.desc, "]")
 		}
 	}
@@ -154,12 +220,22 @@ func testBadgeRequirements(p Player, a ActivityEntry, b Badge) bool {
 	playerRequirements := true
 	if b.hasPlayerRequirement {
 		playerReq := b.playerRequirement
-		levelRequirement := false
+		levelRequirement := true
 		if playerReq.hasLevelRequirement {
 			levelRequirement = p.level >= playerReq.levelRequirement
 		}
 
-		playerRequirements = levelRequirement
+		statsRequirement := true
+		if playerReq.hasStatsRequirement {
+			statsReq := playerReq.statsRequirement
+			distanceRanReq := true
+			if statsReq.hasDistanceRanRequirement {
+				distanceRanReq = p.stats.totalRunningKm >= statsReq.distanceRanRequirement
+			}
+			statsRequirement = distanceRanReq
+		}
+
+		playerRequirements = levelRequirement && statsRequirement
 	}
 
 	return actionRequirements && playerRequirements

@@ -6,7 +6,7 @@ import "io/ioutil"
 type Player struct {
 	level    int32
 	progress float32
-	badges   []Badge
+	badges   []uint32
 	stats    PlayerStats
 }
 
@@ -88,15 +88,18 @@ func main() {
 
 	var p = Player{
 		level:  1,
-		badges: []Badge{},
+		badges: []uint32{},
 	}
 
 	// Add activities to player
 	for _, sa := range acts {
+		fmt.Println("Activity", sa.ID, sa.Distance)
 		a := sa.ToActivityEntry()
 		p = p.AddActivity(a)
 		p = p.ProcessBadges(a)
 	}
+
+	fmt.Println(p)
 
 	// fmt.Println(p)
 
